@@ -2,11 +2,46 @@ import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 
 import { AppComponent } from './app.component';
-import { AppRoutingModule } from './app-routing.module';
+import { AppRoutingModule, PageNotFoundComponent } from './app-routing.module';
+import { HomeComponent } from './home/home.component';
+import { FaqComponent } from './faq/faq.component';
+import { PrivacyPolicyComponent } from './privacy-policy/privacy-policy.component';
+import { HallOfRecordsComponent } from './stats/hall-of-records/hall-of-records.component';
+import { PlayerListComponent } from './player/player-list/player-list.component';
+import { PlayerDetailComponent } from './player/player-detail/player-detail.component';
+import { TeamListComponent } from './team/team-list/team-list.component';
+import { TeamDetailComponent } from './team/team-detail/team-detail.component';
+import { TournamentListComponent } from './tournament/tournament-list/tournament-list.component';
+import { TournamentDetailComponent } from './tournament/tournament-detail/tournament-detail.component';
+import { TournamentGroupsComponent } from './tournament/tournament-groups/tournament-groups.component';
+import { StatsCanadaComponent } from './stats/stats-canada/stats-canada.component';
+import { StatsGoaliesComponent } from './stats/stats-goalies/stats-goalies.component';
+import { TournamentComponent } from './record/tournament/tournament.component';
+import { RegisterComponent } from './record/register/register.component';
+import { TeamOnTournamentComponent } from './record/team-on-tournament/team-on-tournament.component';
+import { MatchComponent } from './record/match/match.component';
 
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
+    HomeComponent,
+    FaqComponent,
+    PrivacyPolicyComponent,
+    HallOfRecordsComponent,
+    PlayerListComponent,
+    PlayerDetailComponent,
+    TeamListComponent,
+    TeamDetailComponent,
+    TournamentListComponent,
+    TournamentDetailComponent,
+    TournamentGroupsComponent,
+    StatsCanadaComponent,
+    StatsGoaliesComponent,
+    PageNotFoundComponent,
+    TournamentComponent,
+    RegisterComponent,
+    TeamOnTournamentComponent,
+    MatchComponent,
   ],
   imports: [
     BrowserModule,
