@@ -20,6 +20,13 @@ import { TournamentComponent } from './record/tournament/tournament.component';
 import { RegisterComponent } from './record/register/register.component';
 import { TeamOnTournamentComponent } from './record/team-on-tournament/team-on-tournament.component';
 import { MatchComponent } from './record/match/match.component';
+import { UserService } from './user/user.service';
+import { HttpClientModule, HttpClientXsrfModule } from '@angular/common/http';
+import { ToastrModule } from 'ngx-toastr';
+import { UserComponent } from './user/user.component';
+import { FormsModule } from '@angular/forms';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
 @NgModule({
   declarations: [
@@ -42,12 +49,25 @@ import { MatchComponent } from './record/match/match.component';
     RegisterComponent,
     TeamOnTournamentComponent,
     MatchComponent,
+    UserComponent,
   ],
   imports: [
     BrowserModule,
-    AppRoutingModule
+    FormsModule,
+    AppRoutingModule,
+    BrowserAnimationsModule,
+    HttpClientModule,
+    HttpClientXsrfModule.withOptions({
+      cookieName: 'csrftoken',
+      headerName: 'X-CSRFToken',
+    }),
+    ToastrModule.forRoot(),
+    NgbModule,
   ],
-  providers: [],
+  providers: [
+    UserService,
+  ],
   bootstrap: [AppComponent]
 })
-export class AppModule { }
+export class AppModule {
+}
