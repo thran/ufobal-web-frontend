@@ -4,6 +4,7 @@ import { User } from '../models';
 import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { environment } from '../../environments/environment';
+import { catchError, finalize, shareReplay } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -12,7 +13,7 @@ export class UserService {
 
   public status = {'logged': false, 'loading': false};
   public user?: User;
-
+  private readonly BASE_URL = '/api_frontend';
 
   constructor(
     private http: HttpClient,
@@ -22,8 +23,6 @@ export class UserService {
     window.addEventListener('message', this.onLoginComplete.bind(this), false);
     this.loadUser();
   }
-
-  private readonly BASE_URL = '/api_frontend';
 
   public loadUser() {
     this.status.loading = true;
@@ -100,23 +99,23 @@ export class UserService {
 
   public signUp(registrationData: any) {
     this.status.loading = true;
-
-    return new Promise<User>((resolve, reject) => {
-      this.http.post<User>(this.BASE_URL + '/signup', registrationData).subscribe({
-        next: user => {this._processUser(user); resolve(user)},
-        error: error => {this.toaster.error(error.error.error); reject(error.error)},
-      });
-    }).finally(() => this.status.loading = false)
+    let result = this.http.post<User>(this.BASE_URL + '/signup', registrationData)
+      .pipe(shareReplay(), finalize(() => this.status.loading = false))
+    result.subscribe({
+      next: user => this._processUser(user),
+      error: error => this.toaster.error(error.error.error),
+    });
+    return result
   }
 
   public logIn(loginForm: any) {
     this.status.loading = true;
-
-    return new Promise<User>((resolve, reject) => {
-      this.http.post<User>(this.BASE_URL + '/login', loginForm).subscribe({
-        next: user => {this._processUser(user); resolve(user)},
-        error: error => {this.toaster.error(error.error.error); reject(error.error)},
-      });
-    }).finally(() => this.status.loading = false)
+    let result = this.http.post<User>(this.BASE_URL + '/login', loginForm)
+      .pipe(shareReplay(), finalize(() => this.status.loading = false))
+    result.subscribe({
+      next: user => this._processUser(user),
+      error: error => this.toaster.error(error.error.error),
+    });
+    return result
   }
 }

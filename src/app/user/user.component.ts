@@ -30,19 +30,23 @@ export class UserComponent {
 
   signUp() {
     this.userService.signUp(this.registrationForm)
-      .then(() => {
-        this.modalService.dismissAll();
-        this.registrationForm = {};
+      .subscribe({
+        next: () => {
+          this.modalService.dismissAll();
+          this.registrationForm = {};
+        },
+        error: error => {},
       })
-      .catch(() => {});
   }
 
   logIn() {
     this.userService.logIn(this.loginForm)
-      .then(() => {
-        this.modalService.dismissAll();
-        this.loginForm = {};
+      .subscribe({
+        next: () => {
+          this.modalService.dismissAll();
+          this.registrationForm = {};
+        },
+        error: error => {},
       })
-      .catch(() => {});
   }
 }
