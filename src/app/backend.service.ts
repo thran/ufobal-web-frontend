@@ -26,6 +26,10 @@ export class BackendService {
     if (entityType === EntityType.Player) endpoint = '/players';
     if (entityType === EntityType.TeamOnTournament) endpoint = '/teamontournaments';
     if (entityType === EntityType.Match) endpoint = '/matchs';
+    if (entityType === EntityType.GoalPair) {
+      endpoint = `/pairs/${params.tournament_id}`;
+      params = null;
+    }
     if (!endpoint) {
       throw new Error('Unknown entity type ' + entityType);
     }

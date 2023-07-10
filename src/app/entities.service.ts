@@ -201,26 +201,44 @@ export class EntitiesService {
         return this._processMatch(entity as Match);
       case EntityType.Penalty:
         return this._processPenalty(entity as Penalty);
+      case EntityType.GoalPair:
+        return this._processGoalPair(entity as GoalPair);
       default:
         throw new Error("Unknown entity type: " + entityType);
     }
   }
 
   /**
-   * general entities processing
+   * general entities processing, ensure that entities are processed in correct order
    */
-  private _processEntities(entityType: EntityType, entities: Entity []) {
-    console.log("Processing entities: " + entityType, entities.length);
-    entities.forEach((entity) => {
-      this._processEntity(entityType, entity);
-    })
+  private _processEntities(entityType: EntityType, entities: Entity []): Observable<Entity []> {
+    return new Observable<Entity []>((subscriber) => {
+      let process = () => {
+        entities.forEach((entity) => {
+          this._processEntity(entityType, entity);
+        })
+        subscriber.next(entities);
+      }
+
+      if (entityType === EntityType.GoalPair || entityType === EntityType.TeamOnTournament) {
+        this._getEntities(EntityType.Player).subscribe((_) => {
+          process()
+        });
+      } else if (entityType === EntityType.Match) {
+        this._getEntities(EntityType.TeamOnTournament).subscribe((_) => {
+          process()
+        });
+      } else {
+        process()
+      }
+    });
   }
 
   /**
    * get entities from backend
    *   - allows to set custom params for backend filtering
    *   - if some entities are dependant on other entities, they are preloaded here
-   *   - process entities
+   *   - process entities and return them
    */
   private _getEntities(entityType: EntityType, params: any = null): Observable<Entity []> {
     let key = entityType + JSON.stringify(params)
@@ -234,19 +252,19 @@ export class EntitiesService {
       // other entities preloading
       if (entityType === EntityType.TeamOnTournament) {
         entitiesObservable = entitiesObservable.pipe(
-          combineLatestWith(this._getEntities(EntityType.Player)),
-          combineLatestWith(this._getEmptyTournaments()),
-          map(([[entities, players], tournaments], index) => entities),
+          combineLatestWith(this._getEntities(EntityType.Player), this._getEmptyTournaments()),
+          map(([entities, player, tournaments], index) => entities),
         )
       }
       entitiesObservable.subscribe((entities) => {
         this.entities[entityType] = entities;
-        this._processEntities(entityType, entities);
-        subscriber.next(entities);
+        this._processEntities(entityType, entities).subscribe((entities) => {
+          subscriber.next(entities);
+        })
       })
     }).pipe(shareReplay())
 
-    return this.entityObservables[key]!;
+    return this.entityObservables[key];
   }
 
   /**
@@ -256,13 +274,17 @@ export class EntitiesService {
   public _getTeamsOnTournaments(withMatches: boolean | number = false): Observable<TeamOnTournament []> {
     let observable = this._getEntities(EntityType.TeamOnTournament) as Observable<TeamOnTournament[]>;
     if (withMatches) {
-      observable.subscribe((_) => {
-        if (typeof withMatches === "number") {
-          this._getEntities(EntityType.Match, {tournament_id: withMatches}).subscribe();
-        } else {
-          this._getEntities(EntityType.Match).subscribe();
-        }
-      })
+      if (typeof withMatches === "number") {
+        observable = observable.pipe(
+          combineLatestWith(this._getEntities(EntityType.Match, {tournament_id: withMatches})),
+          map(([teamsOnTournaments, matches]) => teamsOnTournaments)
+        );
+      } else {
+        observable = observable.pipe(
+          combineLatestWith(this._getEntities(EntityType.Match)),
+          map(([teamsOnTournaments, matches]) => teamsOnTournaments)
+        );
+      }
     }
     return observable;
   }
@@ -271,23 +293,21 @@ export class EntitiesService {
    * get all tournaments without teams - these are omitted in _getTeamsOnTournaments
    */
   public _getEmptyTournaments(): Observable<Tournament []> {
-    let emptyTournaments = this.backend.getEmptyTournaments();
-    emptyTournaments.subscribe((tournaments) => {
-      this._processEntities(EntityType.Tournament, tournaments)
-    });
-    return emptyTournaments;
+    return this.backend.getEmptyTournaments().pipe(tap(
+      (tournaments) => {
+        this._processEntities(EntityType.Tournament, tournaments)
+      }
+    ));
   }
 
   /**
    * get or retrieve all teamsOnTournaments, tournaments, teams and players and return only players
    */
   public getPlayers(): Observable<Player []> {
-    return new Observable<Player []>((subscriber) => {
-      this._getTeamsOnTournaments().subscribe((teamsOnTournaments) => {
-        if (!this.entities[EntityType.Player]) subscriber.error('Players are not loaded yet');
-        subscriber.next(this.entities[EntityType.Player] as Player []);
-      });
-    });
+    return this._getTeamsOnTournaments().pipe(map((teamsOnTournaments) => {
+      if (!this.entities[EntityType.Player]) throw Error('Players are not loaded yet');
+        return this.entities[EntityType.Player] as Player [];
+    }));
   }
 
   /**
@@ -295,12 +315,10 @@ export class EntitiesService {
    * @param withMatches - if true, also get all matches
    */
   public getTeams(withMatches: boolean = false): Observable<Team []> {
-    return new Observable<Team []>((subscriber) => {
-      this._getTeamsOnTournaments(withMatches).subscribe((teamsOnTournaments) => {
-        if (!this.entities[EntityType.Team]) subscriber.error('Teams are not loaded yet');
-        subscriber.next(this.entities[EntityType.Team] as Team []);
-      });
-    });
+    return this._getTeamsOnTournaments().pipe(map((teamsOnTournaments) => {
+      if (!this.entities[EntityType.Team]) throw Error('Teams are not loaded yet');
+        return this.entities[EntityType.Team] as Team [];
+    }));
   }
 
   /**
@@ -308,30 +326,29 @@ export class EntitiesService {
    * @param withMatches - if true, also get all matches
    */
   public getTournaments(withMatches: boolean = false): Observable<Tournament []> {
-    return new Observable<Tournament []>((subscriber) => {
-      this._getTeamsOnTournaments(withMatches).subscribe((teamsOnTournaments) => {
-        if (!this.entities[EntityType.Tournament]) subscriber.error('Tournaments are not loaded yet');
-        subscriber.next(this.entities[EntityType.Tournament] as Tournament []);
-      });
-    });
+    return this._getTeamsOnTournaments().pipe(map((teamsOnTournaments) => {
+      if (!this.entities[EntityType.Tournament]) throw Error('Tournament are not loaded yet');
+        return this.entities[EntityType.Tournament] as Tournament [];
+    }));
   }
 
   /**
-   * get specific tournament and matches for this tournament
+   * get specific tournament with matches and pairs
    * @param pk - tournament id
    */
-  // TODO make better
   public getTournament(pk: number): Observable<Tournament> {
     if (pk in this.entityMaps[EntityType.Tournament]) {
-      return of(this.entityMaps[EntityType.Tournament][pk] as Tournament);
+      let tournament = this.entityMaps[EntityType.Tournament][pk] as Tournament;
+      if (tournament.goalPairs) return of(this.entityMaps[EntityType.Tournament][pk] as Tournament);
     }
-    return this.backend.getTournament(pk).pipe(
-      tap((tournament) => {
-        this._processEntities(EntityType.Tournament, [tournament])
-      }),
-      combineLatestWith(this._getTeamsOnTournaments(pk)),
-      map(([teamsOnTournaments, tournament]) => {
-        return teamsOnTournaments
+
+    let params = {tournament_id: pk};
+    return this._getTeamsOnTournaments(pk).pipe(
+      combineLatestWith(this._getEntities(EntityType.GoalPair, params)),
+      map(([teamsOnTournaments, pairs]) => {
+        let entityMapElement = this.entityMaps[EntityType.Tournament][pk] as Tournament;
+        entityMapElement.goalPairs = pairs as GoalPair [];
+        return entityMapElement;
       }),
     )
   }

@@ -40,8 +40,8 @@ export class PlayerStats {
   assists: number = 0;
   canada: number = 0;
   penalties: number = 0;
-  goals_per_tournament?: {[tournament: number]: number}= {};
-  assists_per_tournament?: {[tournament: number]: number}= {};
+  goals_per_tournament?: { [tournament: number]: number } = {};
+  assists_per_tournament?: { [tournament: number]: number } = {};
 
 }
 
@@ -74,6 +74,7 @@ export class Tournament extends Entity {
   closed_edit!: boolean;
   team_on_tournaments!: TeamOnTournament[] | null;
   matches?: Match[];
+  goalPairs?: GoalPair[];
 }
 
 export class Match extends Entity {
@@ -99,7 +100,7 @@ export class Match extends Entity {
   goalies!: Goalie;
 }
 
-export class Penalty extends Entity{
+export class Penalty extends Entity {
   card!: string;
   card_verbose!: string;
   time!: string;
@@ -108,7 +109,7 @@ export class Penalty extends Entity{
   reason!: string;
 }
 
-export class TeamOnTournament extends Entity{
+export class TeamOnTournament extends Entity {
   team!: Team;
   tournament!: Tournament;
   captain!: Player | number | null;
@@ -122,7 +123,7 @@ export class TeamOnTournament extends Entity{
   player_pks?: number[];
 }
 
-export class GoalPair extends Entity{
+export class GoalPair extends Entity {
   players!: number[];
   points!: number;
   goals_first!: number;
@@ -132,7 +133,7 @@ export class GoalPair extends Entity{
 
 }
 
-export class Goal extends Entity{
+export class Goal extends Entity {
   shooter!: number;
   assistance!: number;
   match!: number;
@@ -140,14 +141,14 @@ export class Goal extends Entity{
   type!: string;
 }
 
-export class Shot extends Entity{
+export class Shot extends Entity {
   shooter!: number;
   match!: number;
   time!: string | null;
   team!: number;
 }
 
-export class Goalie extends Entity{
+export class Goalie extends Entity {
   goalie!: number;
   match!: number;
   start!: string;
