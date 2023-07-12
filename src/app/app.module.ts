@@ -27,6 +27,7 @@ import { UserComponent } from './user/user.component';
 import { FormsModule } from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { SpinnerComponent } from './utils/spinner/spinner.component';
 
 @NgModule({
   declarations: [
@@ -50,6 +51,7 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
     TeamOnTournamentComponent,
     MatchComponent,
     UserComponent,
+    SpinnerComponent,
   ],
   imports: [
     BrowserModule,
