@@ -1,4 +1,5 @@
-export enum EntityType {
+// Entity type
+export enum ET {
   Player = 'player',
   Team = 'team',
   Tournament = 'tournament',
@@ -40,8 +41,8 @@ export class PlayerStats {
   assists: number = 0;
   canada: number = 0;
   penalties: number = 0;
-  goals_per_tournament?: { [tournament: number]: number } = {};
-  assists_per_tournament?: { [tournament: number]: number } = {};
+  goals_per_tournament: { [tournament: number]: number } = {};
+  assists_per_tournament: { [tournament: number]: number } = {};
 
 }
 

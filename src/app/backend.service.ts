@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { ToastrService } from 'ngx-toastr';
 import { shareReplay } from 'rxjs';
-import { Entity, EntityType, Tournament } from './models';
+import { Entity, ET, Tournament } from './models';
 
 @Injectable({
   providedIn: 'root'
@@ -21,12 +21,12 @@ export class BackendService {
     return this.http.get<T>(this.BASE_URL + endpoint, {params: params}).pipe(shareReplay());
   }
 
-  public getEntities(entityType: EntityType, params: any = null) {
+  public getEntities(entityType: ET, params: any = null) {
     let endpoint;
-    if (entityType === EntityType.Player) endpoint = '/players';
-    if (entityType === EntityType.TeamOnTournament) endpoint = '/teamontournaments';
-    if (entityType === EntityType.Match) endpoint = '/matchs';
-    if (entityType === EntityType.GoalPair) {
+    if (entityType === ET.Player) endpoint = '/players';
+    if (entityType === ET.TeamOnTournament) endpoint = '/teamontournaments';
+    if (entityType === ET.Match) endpoint = '/matchs';
+    if (entityType === ET.GoalPair) {
       endpoint = `/pairs/${params.tournament_id}`;
       params = null;
     }
@@ -42,5 +42,9 @@ export class BackendService {
 
   public getTournament(pk: number) {
     return this._get<Tournament>('/tournament/' + pk);
+  }
+
+  public getGoalStats() {
+    return this._get<any>('/goals')
   }
 }

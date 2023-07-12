@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { BackendService } from './backend.service';
 import {
   Entity,
-  EntityType,
+  ET,
   GoalPair,
   Match,
   Penalty,
@@ -23,15 +23,15 @@ export function unidecode(str: string): string {
 })
 export class EntitiesService {
 
-  private entities: { [entityType in EntityType]?: Entity [] } = {};
-  private entityMaps: { [entityType in EntityType]: { [pk: number]: Entity } } = {
-    [EntityType.Player]: <{ [pk: number]: Player }>{},
-    [EntityType.Team]: <{ [pk: number]: Team }>{},
-    [EntityType.Tournament]: <{ [pk: number]: Tournament }>{},
-    [EntityType.TeamOnTournament]: <{ [pk: number]: TeamOnTournament }>{},
-    [EntityType.Match]: <{ [pk: number]: Match }>{},
-    [EntityType.Penalty]: <{ [pk: number]: Penalty }>{},
-    [EntityType.GoalPair]: <{ [pk: number]: GoalPair }>{},
+  private entities: { [entityType in ET]?: Entity [] } = {};
+  private entityMaps: { [entityType in ET]: { [pk: number]: Entity } } = {
+    [ET.Player]: <{ [pk: number]: Player }>{},
+    [ET.Team]: <{ [pk: number]: Team }>{},
+    [ET.Tournament]: <{ [pk: number]: Tournament }>{},
+    [ET.TeamOnTournament]: <{ [pk: number]: TeamOnTournament }>{},
+    [ET.Match]: <{ [pk: number]: Match }>{},
+    [ET.Penalty]: <{ [pk: number]: Penalty }>{},
+    [ET.GoalPair]: <{ [pk: number]: GoalPair }>{},
   };
   private entityObservables: { [key: string]: Observable<Entity []> } = {};
 
@@ -53,7 +53,7 @@ export class EntitiesService {
 
     let penalties: Penalty[] = [];
     player.penalties.forEach(penalty => {
-      penalties.push(this._processEntity(EntityType.Penalty, penalty) as Penalty);
+      penalties.push(this._processEntity(ET.Penalty, penalty) as Penalty);
     });
     player.penalties = penalties;
 
@@ -68,10 +68,10 @@ export class EntitiesService {
     team.team_on_tournaments = [];
     team.medals = [0, 0, 0, 0, 0]
 
-    if (!this.entities[EntityType.Team]) {
-      this.entities[EntityType.Team] = [];
+    if (!this.entities[ET.Team]) {
+      this.entities[ET.Team] = [];
     }
-    this.entities[EntityType.Team].push(team);
+    this.entities[ET.Team].push(team);
     return team;
   }
 
@@ -86,10 +86,10 @@ export class EntitiesService {
       tournament.fields.push("" + i);
     }
 
-    if (!this.entities[EntityType.Tournament]) {
-      this.entities[EntityType.Tournament] = [];
+    if (!this.entities[ET.Tournament]) {
+      this.entities[ET.Tournament] = [];
     }
-    this.entities[EntityType.Tournament].push(tournament);
+    this.entities[ET.Tournament].push(tournament);
     return tournament;
   }
 
@@ -100,20 +100,20 @@ export class EntitiesService {
     teamOnTournament.matches = [];
 
     // create and link teams
-    let team: Team = this._processEntity(EntityType.Team, teamOnTournament.team) as Team;
+    let team: Team = this._processEntity(ET.Team, teamOnTournament.team) as Team;
     team.team_on_tournaments!.push(teamOnTournament);
     if (teamOnTournament.rank < 6) {
       team.medals![teamOnTournament.rank - 1] += 1;
     }
 
     // create and link tournaments
-    let tournament: Tournament = this._processEntity(EntityType.Tournament, teamOnTournament.tournament) as Tournament;
+    let tournament: Tournament = this._processEntity(ET.Tournament, teamOnTournament.tournament) as Tournament;
     tournament.team_on_tournaments!.push(teamOnTournament);
 
     // link players
     teamOnTournament.players = [];
     teamOnTournament.player_pks!.forEach(playerPk => {
-      let player = this.entityMaps[EntityType.Player][playerPk] as Player;
+      let player = this.entityMaps[ET.Player][playerPk] as Player;
       player.tournaments!.push(teamOnTournament);
       teamOnTournament.players!.push(player);
       if (playerPk === teamOnTournament.captain) {
@@ -137,20 +137,20 @@ export class EntitiesService {
    */
   private _processMatch(match: Match): Match {
     if (typeof match.tournament === "number") {
-      match.tournament = this.entityMaps[EntityType.Tournament][match.tournament] as Tournament;
+      match.tournament = this.entityMaps[ET.Tournament][match.tournament] as Tournament;
       match.tournament.matches!.push(match);
     }
     if (typeof match.team_one === "number") {
-      match.team_one = this.entityMaps[EntityType.TeamOnTournament][match.team_one] as TeamOnTournament;
+      match.team_one = this.entityMaps[ET.TeamOnTournament][match.team_one] as TeamOnTournament;
     }
     if (typeof match.team_two === "number") {
-      match.team_two = this.entityMaps[EntityType.TeamOnTournament][match.team_two] as TeamOnTournament;
+      match.team_two = this.entityMaps[ET.TeamOnTournament][match.team_two] as TeamOnTournament;
     }
     if (typeof match.referee_team === "number") {
-      match.referee_team = this.entityMaps[EntityType.TeamOnTournament][match.referee_team] as TeamOnTournament;
+      match.referee_team = this.entityMaps[ET.TeamOnTournament][match.referee_team] as TeamOnTournament;
     }
     if (typeof match.referee === "number") {
-      match.referee = this.entityMaps[EntityType.Player][match.referee] as Player;
+      match.referee = this.entityMaps[ET.Player][match.referee] as Player;
     }
     match.state = match.end ? "ended" : (match.start ? "ongoing" : "waiting");
     match.start = match.start !== null ? new Date(match.start) : null;
@@ -171,8 +171,8 @@ export class EntitiesService {
    * take goal object retrieved from backend and prepare it for frontend
    */
   private _processGoalPair(pair: GoalPair): GoalPair {
-    pair.player_one = this.entityMaps[EntityType.Player][pair.players[0]] as Player;
-    pair.player_two = this.entityMaps[EntityType.Player][pair.players[1]] as Player;
+    pair.player_one = this.entityMaps[ET.Player][pair.players[0]] as Player;
+    pair.player_two = this.entityMaps[ET.Player][pair.players[1]] as Player;
     pair.pk = pair.player_one.pk;
     return pair
   }
@@ -182,26 +182,26 @@ export class EntitiesService {
    *   - store in entityMaps
    *   - call specific processing function
    */
-  private _processEntity(entityType: EntityType, entity: Entity): Entity {
+  private _processEntity(entityType: ET, entity: Entity): Entity {
     if (this.entityMaps[entityType][entity.pk]) {
       return this.entityMaps[entityType][entity.pk];
     }
     this.entityMaps[entityType][entity.pk] = entity;
 
     switch (entityType) {
-      case EntityType.Player:
+      case ET.Player:
         return this._processPlayer(entity as Player);
-      case EntityType.Team:
+      case ET.Team:
         return this._processTeam(entity as Team);
-      case EntityType.Tournament:
+      case ET.Tournament:
         return this._processTournament(entity as Tournament);
-      case EntityType.TeamOnTournament:
+      case ET.TeamOnTournament:
         return this._processTeamOnTournament(entity as TeamOnTournament);
-      case EntityType.Match:
+      case ET.Match:
         return this._processMatch(entity as Match);
-      case EntityType.Penalty:
+      case ET.Penalty:
         return this._processPenalty(entity as Penalty);
-      case EntityType.GoalPair:
+      case ET.GoalPair:
         return this._processGoalPair(entity as GoalPair);
       default:
         throw new Error("Unknown entity type: " + entityType);
@@ -211,7 +211,7 @@ export class EntitiesService {
   /**
    * general entities processing, ensure that entities are processed in correct order
    */
-  private _processEntities(entityType: EntityType, entities: Entity []): Observable<Entity []> {
+  private _processEntities(entityType: ET, entities: Entity []): Observable<Entity []> {
     return new Observable<Entity []>((subscriber) => {
       let process = () => {
         entities.forEach((entity) => {
@@ -220,12 +220,12 @@ export class EntitiesService {
         subscriber.next(entities);
       }
 
-      if (entityType === EntityType.GoalPair || entityType === EntityType.TeamOnTournament) {
-        this._getEntities(EntityType.Player).subscribe((_) => {
+      if (entityType === ET.GoalPair || entityType === ET.TeamOnTournament) {
+        this._getEntities(ET.Player).subscribe((_) => {
           process()
         });
-      } else if (entityType === EntityType.Match) {
-        this._getEntities(EntityType.TeamOnTournament).subscribe((_) => {
+      } else if (entityType === ET.Match) {
+        this._getEntities(ET.TeamOnTournament).subscribe((_) => {
           process()
         });
       } else {
@@ -240,7 +240,7 @@ export class EntitiesService {
    *   - if some entities are dependant on other entities, they are preloaded here
    *   - process entities and return them
    */
-  private _getEntities(entityType: EntityType, params: any = null): Observable<Entity []> {
+  private _getEntities(entityType: ET, params: any = null): Observable<Entity []> {
     let key = entityType + JSON.stringify(params)
     if (this.entityObservables[key]) {
       return this.entityObservables[key]!;
@@ -250,9 +250,9 @@ export class EntitiesService {
       let entitiesObservable = this.backend.getEntities(entityType, params);
 
       // other entities preloading
-      if (entityType === EntityType.TeamOnTournament) {
+      if (entityType === ET.TeamOnTournament) {
         entitiesObservable = entitiesObservable.pipe(
-          combineLatestWith(this._getEntities(EntityType.Player), this._getEmptyTournaments()),
+          combineLatestWith(this._getEntities(ET.Player), this._getEmptyTournaments()),
           map(([entities, player, tournaments], index) => entities),
         )
       }
@@ -272,16 +272,16 @@ export class EntitiesService {
    * @param withMatches - if true, also get all matches, if number, get only matches for tournament with that id
    */
   public _getTeamsOnTournaments(withMatches: boolean | number = false): Observable<TeamOnTournament []> {
-    let observable = this._getEntities(EntityType.TeamOnTournament) as Observable<TeamOnTournament[]>;
+    let observable = this._getEntities(ET.TeamOnTournament) as Observable<TeamOnTournament[]>;
     if (withMatches) {
       if (typeof withMatches === "number") {
         observable = observable.pipe(
-          combineLatestWith(this._getEntities(EntityType.Match, {tournament_id: withMatches})),
+          combineLatestWith(this._getEntities(ET.Match, {tournament_id: withMatches})),
           map(([teamsOnTournaments, matches]) => teamsOnTournaments)
         );
       } else {
         observable = observable.pipe(
-          combineLatestWith(this._getEntities(EntityType.Match)),
+          combineLatestWith(this._getEntities(ET.Match)),
           map(([teamsOnTournaments, matches]) => teamsOnTournaments)
         );
       }
@@ -295,7 +295,7 @@ export class EntitiesService {
   public _getEmptyTournaments(): Observable<Tournament []> {
     return this.backend.getEmptyTournaments().pipe(tap(
       (tournaments) => {
-        this._processEntities(EntityType.Tournament, tournaments)
+        this._processEntities(ET.Tournament, tournaments)
       }
     ));
   }
@@ -305,9 +305,30 @@ export class EntitiesService {
    */
   public getPlayers(): Observable<Player []> {
     return this._getTeamsOnTournaments().pipe(map((teamsOnTournaments) => {
-      if (!this.entities[EntityType.Player]) throw Error('Players are not loaded yet');
-        return this.entities[EntityType.Player] as Player [];
+      if (!this.entities[ET.Player]) throw Error('Players are not loaded yet');
+        return this.entities[ET.Player] as Player [];
     }));
+  }
+
+  public getPlayersWithGoalStats(): Observable<Player []> {
+    return this.getPlayers().pipe(
+      combineLatestWith(this.backend.getGoalStats()),
+      map(([players, stats]) => {
+        stats.goals.forEach((goals: any) => {
+          let player = this.entityMaps[ET.Player][goals.shooter] as Player;
+          player.stats!.goals_per_tournament[goals.match__tournament] = goals.count;
+          player.stats!.goals += goals.count;
+          player.stats!.canada += goals.count;
+        });
+        stats.assists.forEach((assists: any) => {
+          let player = this.entityMaps[ET.Player][assists.assistance] as Player;
+          player.stats!.assists_per_tournament[assists.match__tournament] = assists.count;
+          player.stats!.assists += assists.count;
+          player.stats!.canada += assists.count;
+        });
+        return players
+      })
+    )
   }
 
   /**
@@ -316,8 +337,8 @@ export class EntitiesService {
    */
   public getTeams(withMatches: boolean = false): Observable<Team []> {
     return this._getTeamsOnTournaments().pipe(map((teamsOnTournaments) => {
-      if (!this.entities[EntityType.Team]) throw Error('Teams are not loaded yet');
-        return this.entities[EntityType.Team] as Team [];
+      if (!this.entities[ET.Team]) throw Error('Teams are not loaded yet');
+        return this.entities[ET.Team] as Team [];
     }));
   }
 
@@ -327,8 +348,8 @@ export class EntitiesService {
    */
   public getTournaments(withMatches: boolean = false): Observable<Tournament []> {
     return this._getTeamsOnTournaments().pipe(map((teamsOnTournaments) => {
-      if (!this.entities[EntityType.Tournament]) throw Error('Tournament are not loaded yet');
-        return this.entities[EntityType.Tournament] as Tournament [];
+      if (!this.entities[ET.Tournament]) throw Error('Tournament are not loaded yet');
+        return this.entities[ET.Tournament] as Tournament [];
     }));
   }
 
@@ -337,19 +358,29 @@ export class EntitiesService {
    * @param pk - tournament id
    */
   public getTournament(pk: number): Observable<Tournament> {
-    if (pk in this.entityMaps[EntityType.Tournament]) {
-      let tournament = this.entityMaps[EntityType.Tournament][pk] as Tournament;
-      if (tournament.goalPairs) return of(this.entityMaps[EntityType.Tournament][pk] as Tournament);
+    if (pk in this.entityMaps[ET.Tournament]) {
+      let tournament = this.entityMaps[ET.Tournament][pk] as Tournament;
+      if (tournament.goalPairs) return of(this.entityMaps[ET.Tournament][pk] as Tournament);
     }
 
     let params = {tournament_id: pk};
     return this._getTeamsOnTournaments(pk).pipe(
-      combineLatestWith(this._getEntities(EntityType.GoalPair, params)),
+      combineLatestWith(this._getEntities(ET.GoalPair, params)),
       map(([teamsOnTournaments, pairs]) => {
-        let entityMapElement = this.entityMaps[EntityType.Tournament][pk] as Tournament;
+        let entityMapElement = this.entityMaps[ET.Tournament][pk] as Tournament;
         entityMapElement.goalPairs = pairs as GoalPair [];
         return entityMapElement;
       }),
+    )
+  }
+
+  public refreshTournament(tournament: Tournament): Observable<Tournament> {
+    return this.backend.getEntities(ET.Match, {tournament_id: tournament.pk}).pipe(
+      map((matches) => {
+        tournament.matches = [];
+        this._processEntities(ET.Match, matches);
+        return tournament;
+      })
     )
   }
 }
