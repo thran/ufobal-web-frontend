@@ -52,7 +52,6 @@ export class Team extends Entity {
   name_pure!: string;
   description!: string;
   team_on_tournaments?: TeamOnTournament[];
-  matches?: Match[];
   medals?: number[];
 }
 

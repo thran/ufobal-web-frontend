@@ -64,7 +64,6 @@ export class EntitiesService {
    * take team object retrieved from backend and prepare it for frontend
    */
   private _processTeam(team: Team): Team {
-    team.matches = [];
     team.team_on_tournaments = [];
     team.medals = [0, 0, 0, 0, 0]
 
