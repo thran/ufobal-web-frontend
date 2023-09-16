@@ -1,1 +1,5 @@
-<p>team-list works!</p>
+<spinner [hide]="teams" />
+
+<div *ngIf="teams">
+  teams: {{teams.length}}
+</div>

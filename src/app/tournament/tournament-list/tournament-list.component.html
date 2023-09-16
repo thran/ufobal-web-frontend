@@ -1,1 +1,5 @@
-<p>tournament-list works!</p>
+<spinner [hide]="tournaments" />
+
+<div *ngIf="tournaments">
+  tournaments: {{tournaments.length}}
+</div>
