@@ -66,6 +66,8 @@ export class EntitiesService {
   private _processTeam(team: Team): Team {
     team.team_on_tournaments = [];
     team.medals = [0, 0, 0, 0, 0]
+    team.searchable =   team.name + "###" + unidecode(team.name);
+    team.alternative_names = {};
 
     if (!this.entities[ET.Team]) {
       this.entities[ET.Team] = [];
@@ -103,6 +105,14 @@ export class EntitiesService {
     team.team_on_tournaments!.push(teamOnTournament);
     if (teamOnTournament.rank < 6) {
       team.medals![teamOnTournament.rank - 1] += 1;
+    }
+    if (teamOnTournament.name_pure != team.name) {
+      if (teamOnTournament.name_pure in team.alternative_names) {
+        team.alternative_names![teamOnTournament.name_pure] += 1;
+      } else {
+        team.alternative_names![teamOnTournament.name_pure] = 1;
+        team.searchable += "###" + teamOnTournament.name_pure + "###" + unidecode(teamOnTournament.name_pure);
+      }
     }
 
     // create and link tournaments

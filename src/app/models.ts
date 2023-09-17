@@ -53,6 +53,8 @@ export class Team extends Entity {
   description!: string;
   team_on_tournaments?: TeamOnTournament[];
   medals?: number[];
+  searchable?: string;
+  alternative_names: { [name: string]: number } = {};
 }
 
 export class Tournament extends Entity {
