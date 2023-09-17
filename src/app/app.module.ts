@@ -28,6 +28,7 @@ import { FormsModule } from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { SpinnerComponent } from './utils/spinner/spinner.component';
+import { NgbdSortableHeader, SmartTableComponent } from './utils/table/smart-table.component';
 
 @NgModule({
   declarations: [
@@ -52,6 +53,7 @@ import { SpinnerComponent } from './utils/spinner/spinner.component';
     MatchComponent,
     UserComponent,
     SpinnerComponent,
+    SmartTableComponent,
   ],
   imports: [
     BrowserModule,
@@ -65,6 +67,7 @@ import { SpinnerComponent } from './utils/spinner/spinner.component';
     }),
     ToastrModule.forRoot(),
     NgbModule,
+    NgbdSortableHeader,
   ],
   providers: [
     UserService,
