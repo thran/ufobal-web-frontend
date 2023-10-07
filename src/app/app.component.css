@@ -1,3 +1,7 @@
 .container.page-width {
   max-width: 1000px;
 }
+
+#content, footer {
+  font-size: 0.9rem;
+}

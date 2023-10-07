@@ -1,3 +1,7 @@
+a {
+  text-decoration: none;
+}
+
 ngb-pagination ul {
   justify-content: center !important;
 }
@@ -28,3 +32,5 @@ th[sortable].desc:before {
 div.search-box > input {
   max-width: 300px;
 }
+
+
