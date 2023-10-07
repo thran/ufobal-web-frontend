@@ -392,4 +392,14 @@ export class EntitiesService {
       })
     )
   }
+
+  public getEntity(entityType: ET, pk: number): Observable<Entity> {
+    if (pk in this.entityMaps[entityType]) {
+      return of(this.entityMaps[entityType][pk]);
+    } else {
+      return this.getTeams().pipe(map((teams) => {
+        return this.entityMaps[entityType][pk];
+      }));
+    }
+  }
 }

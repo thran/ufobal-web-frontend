@@ -1,4 +1,6 @@
 import { Component, Input } from '@angular/core';
+import { ET, Team } from '../../models';
+import { EntitiesService } from '../../entities.service';
 
 @Component({
   selector: 'app-team-detail',
@@ -7,4 +9,13 @@ import { Component, Input } from '@angular/core';
 })
 export class TeamDetailComponent {
   @Input() teamId?: number;
+  public team: Team | null = null;
+
+  constructor(public entities: EntitiesService) {
+  }
+
+  ngOnInit(): void {
+    this.entities.getEntity(ET.Team, this.teamId!).subscribe((team) => this.team = team as Team);
+  }
+
 }

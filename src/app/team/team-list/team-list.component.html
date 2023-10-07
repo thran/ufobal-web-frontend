@@ -17,7 +17,7 @@
   </thead>
   <ng-template #tr let-row>
     <td>{{ row.rowNumber }}</td>
-    <td><b>{{ row.name }}</b></td>
+    <td><b><a routerLink="/team/{{ row.pk }}">{{ row.name }}</a></b></td>
     <td>
       <span *ngFor="let name of row.alternative_names | keyvalue; let last = last">
         {{ name.key }}<span *ngIf="!last">,</span>
