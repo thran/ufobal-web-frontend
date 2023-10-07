@@ -29,6 +29,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { SpinnerComponent } from './utils/spinner/spinner.component';
 import { NgbdSortableHeader, SmartTableComponent } from './utils/table/smart-table.component';
+import { SortPipe } from './utils/sort.pipe';
 
 @NgModule({
   declarations: [
@@ -54,6 +55,7 @@ import { NgbdSortableHeader, SmartTableComponent } from './utils/table/smart-tab
     UserComponent,
     SpinnerComponent,
     SmartTableComponent,
+    SortPipe,
   ],
   imports: [
     BrowserModule,
@@ -71,6 +73,7 @@ import { NgbdSortableHeader, SmartTableComponent } from './utils/table/smart-tab
   ],
   providers: [
     UserService,
+    SortPipe,
   ],
   bootstrap: [AppComponent]
 })
