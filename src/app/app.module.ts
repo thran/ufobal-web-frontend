@@ -30,6 +30,7 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { SpinnerComponent } from './utils/spinner/spinner.component';
 import { NgbdSortableHeader, SmartTableComponent } from './utils/table/smart-table.component';
 import { SortPipe } from './utils/sort.pipe';
+import { BackDirective } from './utils/back.directive';
 
 @NgModule({
   declarations: [
@@ -56,6 +57,7 @@ import { SortPipe } from './utils/sort.pipe';
     SpinnerComponent,
     SmartTableComponent,
     SortPipe,
+    BackDirective,
   ],
   imports: [
     BrowserModule,
@@ -74,6 +76,7 @@ import { SortPipe } from './utils/sort.pipe';
   providers: [
     UserService,
     SortPipe,
+    BackDirective,
   ],
   bootstrap: [AppComponent]
 })
