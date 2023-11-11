@@ -1,4 +1,6 @@
 import { Component, Input } from '@angular/core';
+import { EntitiesService } from '../../entities.service';
+import { ET, Team, Tournament } from '../../models';
 
 @Component({
   selector: 'app-tournament-detail',
@@ -8,5 +10,17 @@ import { Component, Input } from '@angular/core';
 export class TournamentDetailComponent {
   @Input() tournamentId?: number;
   @Input() teamId?: number;
+  public tournament: Tournament | null = null;
+
+  constructor(public entities: EntitiesService) {
+  }
+
+  ngOnInit(): void {
+    // this.entities.getEntity(ET.Tournament, this.tournamentId!).subscribe(
+    //   (tournament) => this.tournament = tournament as Tournament;
+    //   this.entities.getPlayersWithGoalStats().subscribe((players) => this.players = players);
+    // );
+  }
+
 
 }

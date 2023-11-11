@@ -1,6 +1,7 @@
-import { Component, OnInit } from '@angular/core';
-import { Tournament } from '../../models';
+import { Component, OnInit, ViewChild } from '@angular/core';
+import { Team, Tournament } from '../../models';
 import { EntitiesService } from '../../entities.service';
+import { SmartTableComponent } from '../../utils/table/smart-table.component';
 
 @Component({
   selector: 'app-tournament-list',
@@ -9,6 +10,7 @@ import { EntitiesService } from '../../entities.service';
 })
 export class TournamentListComponent implements OnInit{
   public tournaments: Tournament[] | null = null;
+  @ViewChild(SmartTableComponent) smartTable: any;
 
   constructor(
     public entities: EntitiesService,
