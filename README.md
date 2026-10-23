@@ -1,5 +1,7 @@
 # Ufo-IS frontend
 
+> **MOVED:** this repo is legacy. The frontend now lives in [ufobal-web](../ufobal-web) under `frontend/`. Do not develop here.
+
 React SPA for [ufobal-web](../ufobal-web) (Django backend).
 
 ## Dev
